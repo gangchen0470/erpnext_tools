@@ -1,0 +1,21 @@
+{
+  "creation": "2026-10-22 00:00:00.000000",
+  "docstatus": 0,
+  "doctype": "Page",
+  "icon": "tool",
+  "idx": 0,
+  "modified": "2026-10-22 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Tools",
+  "name": "tools",
+  "owner": "Administrator",
+  "page_name": "tools",
+  "roles": [
+    {"role": "Tools User"},
+    {"role": "Tools Manager"},
+    {"role": "System Manager"}
+  ],
+  "standard": "Yes",
+  "system_page": 0,
+  "title": "Tools"
+}

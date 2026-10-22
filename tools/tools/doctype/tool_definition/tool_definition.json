@@ -1,0 +1,39 @@
+{
+  "actions": [],
+  "allow_rename": 1,
+  "autoname": "field:title",
+  "creation": "2026-10-22 00:00:00.000000",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": ["title", "category", "description", "icon", "color", "route_type", "route", "required_role", "open_in_new_tab", "enabled", "sequence"],
+  "fields": [
+    {"fieldname": "title", "fieldtype": "Data", "in_list_view": 1, "label": "Title", "reqd": 1, "unique": 1},
+    {"fieldname": "category", "fieldtype": "Link", "in_list_view": 1, "label": "Category", "options": "Tool Category", "reqd": 1},
+    {"fieldname": "description", "fieldtype": "Small Text", "label": "Description"},
+    {"default": "tool", "fieldname": "icon", "fieldtype": "Data", "label": "Icon"},
+    {"default": "blue", "fieldname": "color", "fieldtype": "Data", "label": "Color"},
+    {"default": "Desk Route", "fieldname": "route_type", "fieldtype": "Select", "label": "Route Type", "options": "Desk Route\nExternal URL", "reqd": 1},
+    {"description": "Use /app/... for Desk pages or an https:// URL for external tools.", "fieldname": "route", "fieldtype": "Data", "label": "Route", "reqd": 1},
+    {"description": "Leave blank for every Tools user.", "fieldname": "required_role", "fieldtype": "Link", "label": "Required Role", "options": "Role"},
+    {"default": "0", "fieldname": "open_in_new_tab", "fieldtype": "Check", "label": "Open in New Tab"},
+    {"default": "1", "fieldname": "enabled", "fieldtype": "Check", "in_list_view": 1, "label": "Enabled"},
+    {"default": "100", "fieldname": "sequence", "fieldtype": "Int", "in_list_view": 1, "label": "Sequence"}
+  ],
+  "index_web_pages_for_search": 0,
+  "links": [],
+  "modified": "2026-10-22 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Tools",
+  "name": "Tool Definition",
+  "naming_rule": "By fieldname",
+  "owner": "Administrator",
+  "permissions": [
+    {"read": 1, "role": "Tools User"},
+    {"create": 1, "delete": 1, "export": 1, "print": 1, "read": 1, "report": 1, "share": 1, "write": 1, "role": "Tools Manager"},
+    {"create": 1, "delete": 1, "export": 1, "print": 1, "read": 1, "report": 1, "share": 1, "write": 1, "role": "System Manager"}
+  ],
+  "sort_field": "sequence",
+  "sort_order": "ASC",
+  "states": [],
+  "track_changes": 1
+}
