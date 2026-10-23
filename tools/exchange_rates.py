@@ -79,13 +79,20 @@ def _json_path(payload, path):
     return current
 
 
-def _redact_message(value):
-    # Provider errors are often echoed verbatim; keep stored diagnostics generic.
-    text = str(value or "")[:300]
+def _redact_message(value, settings=None):
+    # Provider errors may echo credential values; redact known secrets before storing/displaying.
+    text = str(value or "")[:500]
+    if settings:
+        for fieldname in ("api_key", "api_secret", "basic_password"):
+            secret = _secret(settings, fieldname)
+            if secret:
+                text = text.replace(secret, "[REDACTED]")
+        if settings.basic_username:
+            text = text.replace(str(settings.basic_username), "[REDACTED]")
     for marker in ("appkey", "api_key", "apikey", "token", "secret", "sign", "password", "authorization"):
         if marker in text.lower():
             return "Provider returned an error; inspect API configuration and provider response mapping."
-    return text
+    return text[:300]
 
 
 def _fetch_rate(settings, source, target):
@@ -284,7 +291,7 @@ def sync_rates():
             )
             successes.append({"pair": f"{source}/{target}", "rate": rate, "record": record.name})
         except Exception as exc:
-            error = _redact_message(exc)
+            error = _redact_message(exc, settings)
             _upsert_record(rate_date, source, target, status="Failed", error=error, provider=settings.provider_name)
             failures.append({"pair": f"{source}/{target}", "error": error})
 
