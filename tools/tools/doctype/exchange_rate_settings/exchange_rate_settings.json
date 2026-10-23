@@ -1,0 +1,28 @@
+{
+ "doctype": "DocType",
+ "name": "Exchange Rate Settings",
+ "module": "Tools",
+ "issingle": 1,
+ "engine": "InnoDB",
+ "track_changes": 1,
+ "field_order": ["api_section", "enabled", "api_url", "appkey", "sign", "timeout", "pairs_section", "currency_pairs", "sync_section", "sync_to_erpnext", "scheduler_enabled", "last_sync_at", "last_sync_status"],
+ "fields": [
+  {"fieldname":"api_section","fieldtype":"Section Break","label":"NowAPI API Settings"},
+  {"fieldname":"enabled","fieldtype":"Check","label":"Enable API Sync","default":"0"},
+  {"fieldname":"api_url","fieldtype":"Data","label":"API URL","default":"https://sapi.k780.com/","reqd":1},
+  {"fieldname":"appkey","fieldtype":"Password","label":"NowAPI AppKey"},
+  {"fieldname":"sign","fieldtype":"Password","label":"NowAPI Sign"},
+  {"fieldname":"timeout","fieldtype":"Int","label":"Request Timeout (seconds)","default":"10","reqd":1},
+  {"fieldname":"pairs_section","fieldtype":"Section Break","label":"Currency Pairs"},
+  {"fieldname":"currency_pairs","fieldtype":"Small Text","label":"Currency Pairs (one pair per line)","default":"USD/CNY\nTHB/CNY\nUSD/INR","description":"Example: USD/CNY. USD/INR is included for ERPNext Currency Exchange Settings validation compatibility."},
+  {"fieldname":"sync_section","fieldtype":"Section Break","label":"Sync Options"},
+  {"fieldname":"sync_to_erpnext","fieldtype":"Check","label":"Update ERPNext Currency Exchange records","default":"1"},
+  {"fieldname":"scheduler_enabled","fieldtype":"Check","label":"Enable Daily Automatic Sync","default":"0"},
+  {"fieldname":"last_sync_at","fieldtype":"Datetime","label":"Last Sync At","read_only":1},
+  {"fieldname":"last_sync_status","fieldtype":"Small Text","label":"Last Sync Status","read_only":1}
+ ],
+ "permissions": [
+  {"role":"Tools Manager","read":1,"write":1,"create":1},
+  {"role":"System Manager","read":1,"write":1,"create":1}
+ ]
+}
