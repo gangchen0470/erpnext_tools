@@ -5,24 +5,274 @@
  "issingle": 1,
  "engine": "InnoDB",
  "track_changes": 1,
- "field_order": ["api_section", "enabled", "api_url", "appkey", "sign", "timeout", "pairs_section", "currency_pairs", "sync_section", "sync_to_erpnext", "scheduler_enabled", "last_sync_at", "last_sync_status"],
+ "field_order": [
+  "api_section",
+  "enabled",
+  "provider_name",
+  "api_url",
+  "http_method",
+  "timeout",
+  "auth_section",
+  "auth_mode",
+  "api_key_name",
+  "api_key",
+  "api_secret_name",
+  "api_secret",
+  "basic_username",
+  "basic_password",
+  "request_section",
+  "request_params_json",
+  "request_headers_json",
+  "from_currency_param",
+  "to_currency_param",
+  "date_param",
+  "response_section",
+  "response_rate_path",
+  "response_success_path",
+  "response_success_value",
+  "response_error_path",
+  "response_source_currency_path",
+  "response_target_currency_path",
+  "pairs_section",
+  "currency_pairs",
+  "sync_section",
+  "sync_to_erpnext",
+  "scheduler_enabled",
+  "last_sync_at",
+  "last_sync_status"
+ ],
  "fields": [
-  {"fieldname":"api_section","fieldtype":"Section Break","label":"NowAPI API Settings"},
-  {"fieldname":"enabled","fieldtype":"Check","label":"Enable API Sync","default":"0"},
-  {"fieldname":"api_url","fieldtype":"Data","label":"API URL","default":"https://sapi.k780.com/","reqd":1},
-  {"fieldname":"appkey","fieldtype":"Password","label":"NowAPI AppKey"},
-  {"fieldname":"sign","fieldtype":"Password","label":"NowAPI Sign"},
-  {"fieldname":"timeout","fieldtype":"Int","label":"Request Timeout (seconds)","default":"10","reqd":1},
-  {"fieldname":"pairs_section","fieldtype":"Section Break","label":"Currency Pairs"},
-  {"fieldname":"currency_pairs","fieldtype":"Small Text","label":"Currency Pairs (one pair per line)","default":"USD/CNY\nTHB/CNY\nUSD/INR","description":"Example: USD/CNY. USD/INR is included for ERPNext Currency Exchange Settings validation compatibility."},
-  {"fieldname":"sync_section","fieldtype":"Section Break","label":"Sync Options"},
-  {"fieldname":"sync_to_erpnext","fieldtype":"Check","label":"Update ERPNext Currency Exchange records","default":"1"},
-  {"fieldname":"scheduler_enabled","fieldtype":"Check","label":"Enable Daily Automatic Sync","default":"0"},
-  {"fieldname":"last_sync_at","fieldtype":"Datetime","label":"Last Sync At","read_only":1},
-  {"fieldname":"last_sync_status","fieldtype":"Small Text","label":"Last Sync Status","read_only":1}
+  {
+   "fieldname": "api_section",
+   "fieldtype": "Section Break",
+   "label": "API Settings"
+  },
+  {
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enable API Sync",
+   "default": "0"
+  },
+  {
+   "fieldname": "provider_name",
+   "fieldtype": "Data",
+   "label": "API / Provider Name",
+   "default": "NowAPI finance.rate",
+   "reqd": 1,
+   "description": "Display name only. API behaviour is driven by the request and response mappings below."
+  },
+  {
+   "fieldname": "api_url",
+   "fieldtype": "Data",
+   "label": "API Endpoint URL",
+   "default": "https://api.k780.com/",
+   "reqd": 1,
+   "description": "HTTPS only. Do not put API keys or secrets in the URL."
+  },
+  {
+   "fieldname": "http_method",
+   "fieldtype": "Select",
+   "label": "HTTP Method",
+   "options": "GET\nPOST",
+   "default": "GET",
+   "reqd": 1
+  },
+  {
+   "fieldname": "timeout",
+   "fieldtype": "Int",
+   "label": "Request Timeout (seconds)",
+   "default": "10",
+   "reqd": 1
+  },
+  {
+   "fieldname": "auth_section",
+   "fieldtype": "Section Break",
+   "label": "Authentication"
+  },
+  {
+   "fieldname": "auth_mode",
+   "fieldtype": "Select",
+   "label": "Authentication Mode",
+   "options": "None\nAPI Key (Query)\nAPI Key (Header)\nAPI Key + Secret (Query)\nAPI Key + Secret (Header)\nBearer Token\nBasic Auth",
+   "default": "API Key + Secret (Query)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "api_key_name",
+   "fieldtype": "Data",
+   "label": "API Key Parameter / Header Name",
+   "default": "appkey",
+   "description": "For query/header auth. NowAPI uses appkey."
+  },
+  {
+   "fieldname": "api_key",
+   "fieldtype": "Password",
+   "label": "API Key / Token",
+   "description": "Encrypted Password field. Bearer Token mode uses this field."
+  },
+  {
+   "fieldname": "api_secret_name",
+   "fieldtype": "Data",
+   "label": "API Secret Parameter / Header Name",
+   "default": "sign",
+   "description": "Used by API Key + Secret modes. NowAPI uses sign."
+  },
+  {
+   "fieldname": "api_secret",
+   "fieldtype": "Password",
+   "label": "API Secret / Signature",
+   "description": "Encrypted Password field. This stores a supplied signature; it does not calculate a provider-specific signature."
+  },
+  {
+   "fieldname": "basic_username",
+   "fieldtype": "Data",
+   "label": "Basic Auth Username"
+  },
+  {
+   "fieldname": "basic_password",
+   "fieldtype": "Password",
+   "label": "Basic Auth Password"
+  },
+  {
+   "fieldname": "request_section",
+   "fieldtype": "Section Break",
+   "label": "Request Mapping"
+  },
+  {
+   "fieldname": "request_params_json",
+   "fieldtype": "Code",
+   "label": "Request Parameters JSON",
+   "options": "JSON",
+   "default": "{\n  \"app\": \"finance.rate\",\n  \"format\": \"json\"\n}",
+   "description": "GET: query parameters. POST: JSON body. Values may use {from_currency}, {to_currency}, and {date}."
+  },
+  {
+   "fieldname": "request_headers_json",
+   "fieldtype": "Code",
+   "label": "Additional HTTP Headers JSON",
+   "options": "JSON",
+   "default": "{}",
+   "description": "Non-secret headers only. Configure credentials using Authentication fields."
+  },
+  {
+   "fieldname": "from_currency_param",
+   "fieldtype": "Data",
+   "label": "Source Currency Parameter",
+   "default": "scur",
+   "description": "Parameter/body key for source currency. Leave blank if the API does not need it."
+  },
+  {
+   "fieldname": "to_currency_param",
+   "fieldtype": "Data",
+   "label": "Target Currency Parameter",
+   "default": "tcur",
+   "description": "Parameter/body key for target currency. Leave blank if the API does not need it."
+  },
+  {
+   "fieldname": "date_param",
+   "fieldtype": "Data",
+   "label": "Date Parameter",
+   "description": "Optional request key. If set, the current ERPNext date is sent."
+  },
+  {
+   "fieldname": "response_section",
+   "fieldtype": "Section Break",
+   "label": "Response Mapping"
+  },
+  {
+   "fieldname": "response_rate_path",
+   "fieldtype": "Data",
+   "label": "Rate JSON Path",
+   "default": "result.rate",
+   "reqd": 1,
+   "description": "Example: result.rate, data.rate, or rates.USD. Array indexes such as data.0.rate are supported."
+  },
+  {
+   "fieldname": "response_success_path",
+   "fieldtype": "Data",
+   "label": "Success JSON Path",
+   "default": "success",
+   "description": "Leave blank to skip the success flag check."
+  },
+  {
+   "fieldname": "response_success_value",
+   "fieldtype": "Data",
+   "label": "Expected Success Value",
+   "default": "1",
+   "description": "Compared as text. For example: 1, true, or ok."
+  },
+  {
+   "fieldname": "response_error_path",
+   "fieldtype": "Data",
+   "label": "Error Message JSON Path",
+   "default": "msg"
+  },
+  {
+   "fieldname": "response_source_currency_path",
+   "fieldtype": "Data",
+   "label": "Returned Source Currency JSON Path",
+   "description": "Optional; validates the source currency returned by the provider."
+  },
+  {
+   "fieldname": "response_target_currency_path",
+   "fieldtype": "Data",
+   "label": "Returned Target Currency JSON Path",
+   "description": "Optional; validates the target currency returned by the provider."
+  },
+  {
+   "fieldname": "pairs_section",
+   "fieldtype": "Section Break",
+   "label": "Currency Pairs"
+  },
+  {
+   "fieldname": "currency_pairs",
+   "fieldtype": "Small Text",
+   "label": "Currency Pairs (one pair per line)",
+   "default": "USD/CNY\nTHB/CNY\nUSD/INR",
+   "description": "Example: USD/CNY. USD/INR is included for compatibility with ERPNext v16 Currency Exchange Settings validation."
+  },
+  {
+   "fieldname": "sync_section",
+   "fieldtype": "Section Break",
+   "label": "Sync Options"
+  },
+  {
+   "fieldname": "sync_to_erpnext",
+   "fieldtype": "Check",
+   "label": "Update ERPNext Currency Exchange records",
+   "default": "1"
+  },
+  {
+   "fieldname": "scheduler_enabled",
+   "fieldtype": "Check",
+   "label": "Enable Daily Automatic Sync",
+   "default": "0"
+  },
+  {
+   "fieldname": "last_sync_at",
+   "fieldtype": "Datetime",
+   "label": "Last Sync At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_sync_status",
+   "fieldtype": "Small Text",
+   "label": "Last Sync Status",
+   "read_only": 1
+  }
  ],
  "permissions": [
-  {"role":"Tools Manager","read":1,"write":1,"create":1},
-  {"role":"System Manager","read":1,"write":1,"create":1}
+  {
+   "role": "Tools Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1
+  },
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1
+  }
  ]
 }
