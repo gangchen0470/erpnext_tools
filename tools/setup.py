@@ -43,7 +43,7 @@ def ensure_exchange_rate_tool():
                 "doctype": "Tool Definition",
                 "title": "Exchange Rates",
                 "category": category,
-                "description": "View exchange rate history and fetch the latest rates from NowAPI.",
+                "description": "View exchange rate history and fetch the latest rates from the configured API.",
                 "icon": "refresh-cw",
                 "color": "blue",
                 "route_type": "Desk Route",
