@@ -70,24 +70,52 @@ Python  >= 3.14
 本项目使用 MIT License。
 
 
-## Exchange Rate Tool (NowAPI)
+## Exchange Rate Tool (Configurable API)
 
-The Tools app includes an optional Exchange Rate module:
+The Tools app includes a provider-agnostic exchange-rate module. The API provider name is descriptive; request and response behavior is configured in **Exchange Rate Settings**, so switching to another JSON REST API normally does not require changing the records UI or ERPNext sync logic.
 
-- **Exchange Rate Settings**: configure the NowAPI HTTPS endpoint, AppKey/Sign (Password fields), currency pairs, timeout, standard ERPNext sync, and daily scheduler.
-- **Exchange Rate Record**: stores one record per currency pair and date, including numeric rate, fetch status, timestamp, and error details.
-- **Manual sync**: open **Tools → Exchange Rates** and choose **Fetch Latest Rates**.
-- **Automatic sync**: enable **Enable API Sync** and **Enable Daily Automatic Sync** in Exchange Rate Settings. The Frappe daily scheduler then fetches the configured pairs.
-- **ERPNext integration**: when enabled, successful rates are written to the standard **Currency Exchange** DocType for both buying and selling.
+- **API Settings**: provider name, HTTPS endpoint, GET/POST, and timeout.
+- **Authentication**: none, API key in query/header, API key + secret in query/header, bearer token, or HTTP Basic Auth. Credentials use Frappe Password fields.
+- **Request Mapping**: JSON query parameters/body, additional non-secret headers, source/target currency parameter names, and optional date parameter. Parameter values support `{from_currency}`, `{to_currency}`, and `{date}`.
+- **Response Mapping**: JSON paths for the rate, optional success flag and expected value, error message, and optional returned source/target currencies. Nested paths and array indexes are supported, e.g. `data.rate` or `data.0.rate`.
+- **Exchange Rate Record**: one record per pair and date, including source/provider name, rate, status, fetch timestamp, and error details.
+- **Manual sync and scheduler**: use the list action to fetch manually; daily scheduling is opt-in.
+- **ERPNext integration**: successful rates can be written to ERPNext's standard `Currency Exchange` DocType for buying and selling.
 
-Default currency pairs are USD/CNY, THB/CNY, and USD/INR. The USD/INR pair is included because ERPNext v16 validates its Custom Currency Exchange Settings using USD→INR. Remove or replace pairs only after confirming the API supports the pair required by your ERPNext configuration.
+### Initial NowAPI configuration
+
+The default configuration is intended for the NowAPI `finance.rate` endpoint shown in the setup reference:
+
+- Endpoint: `https://api.k780.com/` (confirm the exact HTTPS endpoint available for your NowAPI account)
+- Method: `GET`
+- Authentication: `API Key + Secret (Query)`
+- API Key parameter: `appkey`; API Secret parameter: `sign`
+- Request Parameters JSON:
+  ```json
+  {
+    "app": "finance.rate",
+    "format": "json"
+  }
+  ```
+- Source currency parameter: `scur`; target currency parameter: `tcur`
+- Rate JSON Path: `result.rate`
+- Success JSON Path: `success`; expected value: `1`
+- Error JSON Path: `msg`
+
+The default currency pairs are USD/CNY, THB/CNY, and USD/INR. Confirm the currencies are supported by the selected API and enabled in ERPNext before enabling synchronization.
 
 ### Setup
 
-1. Back up the site and the existing tools app before upgrading.
-2. Deploy this branch/version of the app to the bench.
-3. Run `bench --site <site> migrate`, then restart the bench workers/web services.
-4. Open **Exchange Rate Settings**, enter your own NowAPI AppKey and Sign, save, and first run a manual sync.
-5. Confirm the Exchange Rate Record list and standard Currency Exchange records. Only then enable the daily scheduler.
+1. Back up the site and existing `tools` app before upgrading.
+2. Deploy the branch/version of the app to a test bench.
+3. Run `bench --site <site> migrate`, then restart the bench web and worker services.
+4. Open **Exchange Rate Settings**, enter credentials and verify all request/response mappings against the provider's API documentation.
+5. Run a manual sync and confirm both the Exchange Rate Record list and standard Currency Exchange records before enabling daily scheduling.
 
-Secrets are stored in Frappe Password fields and are not committed to this repository. Do not put API credentials in source code or share them in screenshots. The NowAPI account's signature requirements must be followed; a static Sign only works if the provider says it is valid for these requests. Rates are current quotes from `finance.rate`, not historical-date rates. The daily job records the date fetched; it does not backfill historical exchange rates.
+### Limitations and security
+
+- This is a configurable JSON REST adapter, not an arbitrary protocol adapter. Providers that require OAuth token exchange, request signing algorithms, XML, custom multi-step workflows, or unusual response transformations need a dedicated adapter or future extension.
+- The API Secret field stores a supplied secret/signature; the module does not calculate provider-specific dynamic signatures. Confirm whether a static `sign` is valid for your NowAPI account.
+- Use HTTPS only. Do not place credentials in the endpoint URL or additional headers JSON. Query-based authentication necessarily places credentials in the HTTP query string sent to the provider; the module avoids intentionally logging or displaying that URL, but provider/network infrastructure may still record it. Prefer header authentication when the provider supports it.
+- The daily scheduler fetches current rates and labels them with the local ERPNext date; it does not backfill historical rates.
+- Test in a backup/staging site before production use. The changes have not been deployed to the user's NAS instance.
