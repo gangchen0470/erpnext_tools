@@ -8,7 +8,7 @@ frappe.listview_settings["Exchange Rate Record"] = {
       frappe.call({
         method: "tools.exchange_rates.sync_rates",
         freeze: true,
-        freeze_message: __("Fetching exchange rates from NowAPI..."),
+        freeze_message: __("Fetching exchange rates from configured API..."),
       }).then((r) => {
         const message = r.message || {};
         const successes = message.success || [];
