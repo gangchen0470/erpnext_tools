@@ -68,3 +68,26 @@ Python  >= 3.14
 ## 开源许可
 
 本项目使用 MIT License。
+
+
+## Exchange Rate Tool (NowAPI)
+
+The Tools app includes an optional Exchange Rate module:
+
+- **Exchange Rate Settings**: configure the NowAPI HTTPS endpoint, AppKey/Sign (Password fields), currency pairs, timeout, standard ERPNext sync, and daily scheduler.
+- **Exchange Rate Record**: stores one record per currency pair and date, including numeric rate, fetch status, timestamp, and error details.
+- **Manual sync**: open **Tools → Exchange Rates** and choose **Fetch Latest Rates**.
+- **Automatic sync**: enable **Enable API Sync** and **Enable Daily Automatic Sync** in Exchange Rate Settings. The Frappe daily scheduler then fetches the configured pairs.
+- **ERPNext integration**: when enabled, successful rates are written to the standard **Currency Exchange** DocType for both buying and selling.
+
+Default currency pairs are USD/CNY, THB/CNY, and USD/INR. The USD/INR pair is included because ERPNext v16 validates its Custom Currency Exchange Settings using USD→INR. Remove or replace pairs only after confirming the API supports the pair required by your ERPNext configuration.
+
+### Setup
+
+1. Back up the site and the existing tools app before upgrading.
+2. Deploy this branch/version of the app to the bench.
+3. Run `bench --site <site> migrate`, then restart the bench workers/web services.
+4. Open **Exchange Rate Settings**, enter your own NowAPI AppKey and Sign, save, and first run a manual sync.
+5. Confirm the Exchange Rate Record list and standard Currency Exchange records. Only then enable the daily scheduler.
+
+Secrets are stored in Frappe Password fields and are not committed to this repository. Do not put API credentials in source code or share them in screenshots. The NowAPI account's signature requirements must be followed; a static Sign only works if the provider says it is valid for these requests. Rates are current quotes from `finance.rate`, not historical-date rates. The daily job records the date fetched; it does not backfill historical exchange rates.
