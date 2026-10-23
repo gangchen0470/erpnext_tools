@@ -26,3 +26,9 @@ add_to_apps_screen = [
 before_install = "tools.setup.before_install"
 after_install = "tools.setup.after_install"
 after_migrate = "tools.setup.after_migrate"
+
+doctype_list_js = {"Exchange Rate Record": "public/js/exchange_rate_record_list.js"}
+
+scheduler_events = {
+    "daily": ["tools.exchange_rates.scheduled_sync_rates"],
+}
