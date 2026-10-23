@@ -60,7 +60,7 @@ def _render_value(value, source, target, rate_date):
     return value
 
 
-def _json_path(payload, path):
+def _json_path(payload, path, source=None, target=None):
     if not path:
         return None
     current = payload
@@ -69,7 +69,18 @@ def _json_path(payload, path):
             try:
                 current = current[int(part)]
             except (ValueError, IndexError):
-                return None
+                # Some providers (including possible NowAPI responses) wrap a single
+                # currency-pair result in an array. Prefer a matching pair when exposed.
+                matching = [
+                    row for row in current
+                    if isinstance(row, dict)
+                    and (not row.get("scur") or not source or str(row.get("scur")).upper() == source)
+                    and (not row.get("tcur") or not target or str(row.get("tcur")).upper() == target)
+                    and part in row
+                ]
+                if not matching:
+                    return None
+                current = matching[0][part]
         elif isinstance(current, dict):
             if part not in current:
                 return None
@@ -188,20 +199,20 @@ def _fetch_rate(settings, source, target):
 
     success_path = (settings.response_success_path or "").strip()
     if success_path:
-        actual = _json_path(payload, success_path)
+        actual = _json_path(payload, success_path, source, target)
         expected = str(settings.response_success_value if settings.response_success_value is not None else "1")
         if actual is None or str(actual).lower() != expected.lower():
-            error = _json_path(payload, settings.response_error_path or "")
+            error = _json_path(payload, settings.response_error_path or "", source, target)
             raise ValueError("API reported failure: " + _redact_message(error or "success field did not match expected value"))
 
-    returned_source = _json_path(payload, settings.response_source_currency_path or "")
-    returned_target = _json_path(payload, settings.response_target_currency_path or "")
+    returned_source = _json_path(payload, settings.response_source_currency_path or "", source, target)
+    returned_target = _json_path(payload, settings.response_target_currency_path or "", source, target)
     if returned_source is not None and str(returned_source).upper() != source:
         raise ValueError("API returned a different source currency")
     if returned_target is not None and str(returned_target).upper() != target:
         raise ValueError("API returned a different target currency")
 
-    raw_rate = _json_path(payload, settings.response_rate_path or "rate")
+    raw_rate = _json_path(payload, settings.response_rate_path or "rate", source, target)
     try:
         rate = Decimal(str(raw_rate))
     except (InvalidOperation, TypeError, ValueError):
